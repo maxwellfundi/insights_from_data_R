@@ -71,7 +71,6 @@ bplot <- ggplot(data = mpg, mapping = aes(x=cty, y= as.factor(cyl))) + geom_boxp
 bplot
 
 
-
 #Factors Influencing Fuel Efficiency
 #Investigate which variables might influence fuel efficiency (cty and hwy) the most.
 # Use appropriate visualizations (scatterplots, boxplots) to examine relationships between class, displ, cyl, and fuel efficiency.
