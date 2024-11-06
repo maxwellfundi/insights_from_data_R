@@ -18,7 +18,6 @@ View(mpg)
 
 
 #barchart of car classes
-
 bar <- ggplot(data = mpg, mapping = aes(x=class)) + geom_bar() 
 bar
 
@@ -79,8 +78,3 @@ scattercty
 #scatterplot for hwy vs disp vs class
 scatterhwy <- ggplot(data =mpg, mapping = aes(x = displ, y = hwy, colour = class)) + geom_point()+ geom_smooth(method = "lm", se = FALSE) + ggtitle("Comparison of highway economy, displacemnet across car classes")
 scatterhwy
-
-
-
-
-
