@@ -103,6 +103,8 @@ data_clean <- data_dirty
 vis_miss(data_clean)
 
 
+
+
 #EX2.2 - Data visualization and exploration 
 #Visualize the distribution of Species in cleaned iris data set (barplot).
 specis <- ggplot(data =data_clean, mapping = aes(x=Species))+geom_bar() + geom_text(stat = 'count', aes(label = paste0(round(..count../sum(..count..)*100, 2), "%")), vjust = -0.25)
@@ -204,7 +206,7 @@ stats_summary_matrix <- matrix(
   byrow = TRUE
 )
 
-# Set the row and column names
+# Set the row and column names for the matrix
 rownames(stats_summary_matrix) <- c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")
 colnames(stats_summary_matrix) <- c("Mean", "Median", "Variance", "Standard Deviation")
 
