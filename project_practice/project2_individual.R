@@ -112,13 +112,7 @@ View(merged_data)
 
 
 # Analyze the alignment of clusters with political parties
-# For example, using a table to see the distribution
-table(merged_data$cluster, merged_data$PoliticalParty)
-
-
-
-ggplot(merged_data, aes(x = factor(cluster), fill = Party)) +
-  geom_bar(position = "dodge") +
+ggplot(merged_data, aes(x = factor(cluster), fill = Party)) +  geom_bar(position = "dodge") +
   labs(title = "Cluster Distribution by Political Party", x = "Cluster", y = "Count") 
 
 
