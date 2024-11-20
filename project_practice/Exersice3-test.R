@@ -43,10 +43,29 @@ fviz_nbclust(df, kmeans, method = "silhouette")+
 
 set.seed(12)
 km_res <- kmeans(df, 3, nstart = 25)
-aggregate(df, by=list(cluster=km_res$cluster), mean)
+
+#XXXXX
+cluster_mean = aggregate(df, by=list(cluster=km_res$cluster), mean)
 dd <- cbind(iris, cluster = km_res$cluster)
 table(km_res$cluster)
 
+#XXXVisualisation
 fviz_cluster(km_res, iris[, -5], ellipse.type = "norm")
 
 
+
+#hierachical 
+clusters <- hclust(dist_iris)
+plot(clusters)
+clusterCut <- cutree(clusters, 3)
+table(clusterCut, iris$Species)
+ggplot(iris, aes(Petal.Length, Petal.Width, color = iris$Species)) +  
+geom_point(alpha = 0.4, size = 3.5) + geom_point(col = clusterCut) + 
+scale_color_manual (values = c('black', 'red', 'green’))
+
+
+clusters <- hclust(dist_iris, method = 'average’)
+plot(clusters)
+clusterCut <- cutree(clusters, 3)
+table(clusterCut, iris$Species)
+ggplot(iris, aes(Petal.Length, Petal.Width, color = iris$Species)) +   geom_point(alpha = 0.4, size = 3.5) + geom_point(col = clusterCut) +   scale_color_manual(values = c('black', 'red', 'green'))
