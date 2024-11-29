@@ -1,8 +1,12 @@
-
+install.packages("class")
 #loading libraries 
 library(ggplot2)
-
-
+library(factoextra)
+library(ggplot2)
+library(cluster)
+library(dplyr)
+library(caret)
+library(class)
 #Load data 
 pima_data <- read.csv(file = "C:/Users/maxwe/Documents/insights_from_data_R/project_practice/Project3/pima-indians-diabetes_data.csv", sep = ",",header = FALSE)
 View(pima_data)
@@ -63,4 +67,101 @@ pima_data$diabetes_pedigree_function[pima_data$diabetes_pedigree_function > 1.05
 
 # Create a bar chart for the 'class' column
 ggplot(data = pima_data , mapping =  aes(x = as.factor(class))) +  geom_bar()
+
+#task 2 - Analyze the variance of input variables. Consider removing variables with exceptionally low variance, if necessary.
+variance < - apply(pima_data[, -9], 2, var)
+variance
+
+#removing diabetes_pedigree_function as it has low variance
+pima_data_var <- pima_data[,-7]
+View(pima_data_var)
+
+#Task 3  
+#Correlation Analysis: Conduct correlation analysis among the input variables. Visualize
+#the results and propose a strategy for handling highly correlated variables
+cor_matrix <- cor(pima_data_var[, c("number_pregnant", "plasma_glucose_conc", "diastolic_pressure", "triceps_thickness", "serum_insulin", "bmi", "age")])
+
+# Visualize the correlation 
+melted_corr <- melt(cor_matrix)
+
+# Plot the heatmap
+ggplot(data = melted_corr, aes(x=Var1, y=Var2, fill=value)) + geom_tile()
+
+
+#Cluster Analysis: Apply k-means clustering 
+# Task 2. Determine the Number of Clusters
+# o Use the elbow method and silhouette analysis to determine the optimal number
+# of clusters. Visualize and explain the selection process.
+
+
+#scale the data 
+cluster_data <- pima_data_var[,-8]
+scaleddf <- scale(cluster_data)
+View(scaleddf)
+
+#optimal clusters using elbow method 
+df= data.frame(scaleddf)
+fviz_nbclust(df, kmeans, method = "wss") 
+
+# optimal clusters using Silhouette method
+fviz_nbclust(df, kmeans, method = "silhouette")
+
+set.seed(12)
+km_res <- kmeans(df, 2, nstart = 25)
+aggregate(df, by=list(cluster=km_res$cluster), mean)
+fviz_cluster(km_res, df)
+
+
+#####
+set.seed(123)  # For reproducibility
+k <- 2  # Replace with the optimal number of clusters determined
+kmeans_result <- kmeans(scaleddf, centers = k, nstart = 25)
+
+# Add cluster assignments to the original data
+df_clustered <- df %>% mutate(Cluster = kmeans_result$cluster)
+# Perform PCA
+pca_result <- prcomp(scaleddf, center = TRUE, scale. = TRUE)
+pca_data <- data.frame(pca_result$x[, 1:2], Cluster = as.factor(kmeans_result$cluster))
+
+# Plot the PCA clusters
+ggplot(pca_data, aes(PC1, PC2, color = Cluster)) +
+  geom_point(size = 3) +
+  labs(title = "K-Means Clustering (PCA)", x = "PC1", y = "PC2") +
+  theme_minimal()
+
+
+silhouette_score <- silhouette(kmeans_result$cluster, dist(scaleddf))
+fviz_silhouette(silhouette_score)
+
+
+
+##Classification Analysis: Use KNN to predict diabetes
+# Task 3 - Train-Test Split: Split the dataset into training (80%) and testing (20%) sets, ensuring
+# proportional representation of Outcome classes (0 and 1).
+
+# Create a stratified split
+set.seed(123)  # For reproducibility
+trainIndex <- createDataPartition(pima_data_var$class, p = 0.8, list = FALSE)
+
+# Split the data into training and testing sets
+train_data <- pima_data_var[trainIndex, ]
+test_data <- pima_data_var[-trainIndex, ]
+
+# Separate features and target variable
+train_x <- train_data[, -ncol(train_data)]
+train_y <- train_data$class
+test_x <- test_data[, -ncol(test_data)]
+test_y <- test_data$class
+
+# Train KNN classifiers with different values of K and present confusion matrices
+k_values <- c(1, 3, 5, 7, 9)
+for (k in k_values) {
+  pred_y <- knn(train = train_x, test = test_x, cl = train_y, k = k)
   
+  cat("\nConfusion Matrix for K =", k, ":\n")
+  print(table(Predicted = pred_y, Actual = test_y))
+  
+  cat("\nClassification Report for K =", k, ":\n")
+  print(confusionMatrix(as.factor(pred_y), as.factor(test_y)))
+}
+
